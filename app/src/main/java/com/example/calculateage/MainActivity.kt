@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.time.Month
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -30,11 +31,13 @@ class MainActivity : AppCompatActivity() {
         val birthDatePicker = findViewById<CalendarView>(R.id.birthdate_picker)
         val calcAgeButton = findViewById<Button>(R.id.calc_age_button)
 
+        val today = Calendar.getInstance().timeInMillis
+
         // Sets the max date allowed to be picked to today's date.
-        birthDatePicker.maxDate = System.currentTimeMillis()
+        birthDatePicker.maxDate = today
 
         // Sets the initial value to today's date in milliseconds.
-        var birthDateInMs = birthDatePicker.date
+        var birthDateInMs = today
 
         // Set a new birthDateInMs when a new date in the calendar is selected.
         birthDatePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
@@ -73,8 +76,21 @@ class MainActivity : AppCompatActivity() {
         // Calendar instance that represents today's date.
         val today = Calendar.getInstance()
 
-        // Return the age of the user by subtracting today's year and the birth year.
-        return today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
+        // Set age of the user by subtracting today's year and the birth year.
+        var age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
+
+        // This is a check if the users current month is the same or later month.
+        // OR
+        // If the current month is the same as the birth month, did the current day of the month
+        // less than the birth day.
+        // If this either of these checks are true, reduce the age by one.
+        if (today.get(Calendar.MONTH) < birthDate.get(Calendar.MONTH) ||
+                (today.get(Calendar.MONTH) == birthDate.get(Calendar.MONTH) &&
+                        today.get(Calendar.DAY_OF_MONTH) < birthDate.get(Calendar.DAY_OF_MONTH))) {
+            age--
+        }
+
+        return age
     }
 
     /**
