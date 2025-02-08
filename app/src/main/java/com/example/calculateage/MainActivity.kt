@@ -23,42 +23,58 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // Get all the inputs, calendar and buttons.
         val firstNameInput = findViewById<EditText>(R.id.first_name_input)
         val lastNameInput = findViewById<EditText>(R.id.last_name_input)
         val birthDatePicker = findViewById<CalendarView>(R.id.birthdate_picker)
         val calcAgeButton = findViewById<Button>(R.id.calc_age_button)
 
-        var birthDateInMillis = birthDatePicker.date
+        // Sets the initial value to today's date in milliseconds.
+        var birthDateInMs = birthDatePicker.date
 
+        // Set a listener to set a new birthDateInMs when a new date in the calendar is selected.
         birthDatePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
             val calendar = Calendar.getInstance()
             calendar.set(year, month, dayOfMonth)
-            birthDateInMillis = calendar.timeInMillis
+            birthDateInMs = calendar.timeInMillis
         }
+
+        // When the button is clicked will greet the user with their age and name.
         calcAgeButton.setOnClickListener {
             toastGreetingAndAge(
                 firstNameInput.text.toString(),
                 lastNameInput.text.toString(),
-                calcAge(birthDateInMillis))
+                calcAge(birthDateInMs))
         }
     }
 
     /**
-     *
+     * Calculates the age based on the birthDatePicker input.
+     * @param birthDateInMs The birth date in milliseconds since January 1, 1970.
+     * @return The calculated age in years.
      */
-    private fun calcAge(birthDateInMillis: Long): Int {
-        val birthDate = Calendar.getInstance().apply { timeInMillis = birthDateInMillis }
-        val today = Calendar.getInstance()
-        var age = today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
+    private fun calcAge(birthDateInMs: Long): Int {
+        // Calendar instance that represents the date the user selected
+        val birthDate = Calendar.getInstance().apply { timeInMillis = birthDateInMs }
 
-        if (today.get(Calendar.DAY_OF_YEAR) < birthDate.get(Calendar.DAY_OF_YEAR)) {
-            age--
-        }
-        return age
+        // Calendar instance that represents today's date.
+        val today = Calendar.getInstance()
+
+        // Return the age of the user by subtracting today's year and the birth year.
+        return today.get(Calendar.YEAR) - birthDate.get(Calendar.YEAR)
     }
 
+    /**
+     * Shows a toast to the user with a greeting and their age.
+     * @param firstName First name of the user.
+     * @param lastName Last name of the user.
+     * @param age Age of the user.
+     */
     private fun toastGreetingAndAge(firstName: String, lastName: String, age: Int) {
+        // Create the text with the greeting and age.
         val greeting = "Hello $firstName $lastName!\nYou are $age years old today!"
+
+        // Display the greeting and age.
         Toast.makeText(this, greeting, Toast.LENGTH_LONG).show()
     }
 }
