@@ -11,8 +11,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.text.SimpleDateFormat
 import java.time.Month
+import java.time.format.DateTimeParseException
 import java.util.Calendar
+import java.util.Locale
+import kotlin.time.Duration.Companion.microseconds
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,39 +32,54 @@ class MainActivity : AppCompatActivity() {
         // Get all the inputs, calendar and button.
         val firstNameInput = findViewById<EditText>(R.id.first_name_input)
         val lastNameInput = findViewById<EditText>(R.id.last_name_input)
-        val birthDatePicker = findViewById<CalendarView>(R.id.birthdate_picker)
+        val dateInput = findViewById<EditText>(R.id.date_input)
         val calcAgeButton = findViewById<Button>(R.id.calc_age_button)
 
-        val today = Calendar.getInstance().timeInMillis
-
-        // Sets the max date allowed to be picked to today's date.
-        birthDatePicker.maxDate = today
-
-        // Sets the initial value to today's date in milliseconds.
-        var birthDateInMs = today
-
-        // Set a new birthDateInMs when a new date in the calendar is selected.
-        birthDatePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            birthDateInMs = calendar.timeInMillis
-        }
-
-        // When the button is clicked will greet the user with their age and name.
+        /**
+         * When the button is clicked will greet the user with their age and name,
+         * or display a toast with what part of the form is not filled out correctly.
+         */
         calcAgeButton.setOnClickListener {
             val firstName = firstNameInput.text.toString().trim()
+
+            // If the first name input was not filled in, send error to the user.
             if (firstName.isEmpty()) {
-                toastError("First name is required!")
+                toast("First name is required!")
                 return@setOnClickListener
             }
 
             val lastName = lastNameInput.text.toString().trim()
+
+            // If the last name input was not filled in, send error to the user.
             if (lastName.isEmpty()) {
-                toastError("Last name is required!")
+                toast("Last name is required!")
                 return@setOnClickListener
             }
 
-            toastGreetingAndAge(firstName, lastName, calcAge(birthDateInMs))
+            // If the date of birth input was not filled in, send error to the user.
+            val birtDateStr = dateInput.text.toString().trim()
+            if (birtDateStr.isEmpty()) {
+                toast("Date of Birth is required!")
+                return@setOnClickListener
+            }
+
+            // Parse the date of birth and return the time in milliseconds
+            val birthDate = parseBirthDate(birtDateStr)
+
+            // If the birth date is -1L for time in milliseconds, send the user the error message.
+            if (birthDate == -1L) {
+                toast("The Date of Birth entered is not valid, please use the format MM/DD/YYYY")
+                return@setOnClickListener
+            }
+
+            // If the birth date is a future date, send the user a funny error message.
+            if (isFutureDate(birthDate)) {
+                toast("You must be a time traveler!\nPlease re-enter your Date of Birth!")
+                return@setOnClickListener
+            }
+
+            // All error checks succeeded, send the user a greeting with their age.
+            toast("Hello $firstName $lastName! You are ${calcAge(birthDate)} years old!")
         }
     }
 
@@ -94,25 +113,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Shows a toast to the user with a greeting and their age.
-     * @param firstName First name of the user.
-     * @param lastName Last name of the user.
-     * @param age Age of the user.
+     * Parses the string value of the date of birth into a time in milliseconds.
+     * @param birthDateStr String value of the date
+     * @return Date as time in milliseconds.  Invalid dates will return -1L.
      */
-    private fun toastGreetingAndAge(firstName: String, lastName: String, age: Int) {
-        // Create the text with the greeting and age.
-        val greeting = "Hello $firstName $lastName!\nYou are $age years old today!"
-
-        // Display the greeting and age.
-        Toast.makeText(this, greeting, Toast.LENGTH_LONG).show()
+    private fun parseBirthDate(birthDateStr: String): Long {
+        val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.US) // Correct format
+        try {
+            val birthDate = formatter.parse(birthDateStr)
+            if (birthDate != null) {
+                val calendar = Calendar.getInstance()
+                calendar.time = birthDate
+                return calendar.timeInMillis
+            }
+        } catch (e: Exception) {
+            println("Caught exception parsing date from string: $e")
+        }
+        return -1L
     }
 
     /**
-     * Shows a toast with an error message to the user when inputs are not valid.
+     * Determine if a date entered is in the future.
+     * @param timeInMs The date represented as time in milliseconds.
+     * @return true if the date is in the future
+     */
+    private fun isFutureDate(timeInMs: Long): Boolean {
+        return timeInMs > Calendar.getInstance().timeInMillis
+    }
+
+    /**
+     * Shows a toast with a message for the user.
      * @param message The message to show the user.
      */
-    private fun toastError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 
     }
 }
