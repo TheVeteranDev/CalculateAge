@@ -68,4 +68,48 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/last_name_input" />
 
+    <TextView
+        android:id="@+id/first_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="39dp"
+        android:layout_marginEnd="302dp"
+        android:text="First Name"
+        app:layout_constraintBottom_toTopOf="@+id/first_name_input"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/last_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="41dp"
+        android:layout_marginTop="21dp"
+        android:layout_marginEnd="302dp"
+        android:text="Last Name"
+        app:layout_constraintBottom_toTopOf="@+id/last_name_input"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/first_name_input"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/birthdate_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="22dp"
+        android:layout_marginEnd="293dp"
+        android:layout_marginBottom="1dp"
+        android:text="Date of Birth"
+        app:layout_constraintBottom_toTopOf="@+id/birthdate_picker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/last_name_input" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package com.example.calculateage
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -23,16 +24,19 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Get all the inputs, calendar and buttons.
+        // Get all the inputs, calendar and button.
         val firstNameInput = findViewById<EditText>(R.id.first_name_input)
         val lastNameInput = findViewById<EditText>(R.id.last_name_input)
         val birthDatePicker = findViewById<CalendarView>(R.id.birthdate_picker)
         val calcAgeButton = findViewById<Button>(R.id.calc_age_button)
 
+        // Sets the max date allowed to be picked to today's date.
+        birthDatePicker.maxDate = System.currentTimeMillis()
+
         // Sets the initial value to today's date in milliseconds.
         var birthDateInMs = birthDatePicker.date
 
-        // Set a listener to set a new birthDateInMs when a new date in the calendar is selected.
+        // Set a new birthDateInMs when a new date in the calendar is selected.
         birthDatePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
             val calendar = Calendar.getInstance()
             calendar.set(year, month, dayOfMonth)
@@ -41,10 +45,19 @@ class MainActivity : AppCompatActivity() {
 
         // When the button is clicked will greet the user with their age and name.
         calcAgeButton.setOnClickListener {
-            toastGreetingAndAge(
-                firstNameInput.text.toString(),
-                lastNameInput.text.toString(),
-                calcAge(birthDateInMs))
+            val firstName = firstNameInput.text.toString().trim()
+            if (firstName.isEmpty()) {
+                toastError("First name is required!")
+                return@setOnClickListener
+            }
+
+            val lastName = lastNameInput.text.toString().trim()
+            if (lastName.isEmpty()) {
+                toastError("Last name is required!")
+                return@setOnClickListener
+            }
+
+            toastGreetingAndAge(firstName, lastName, calcAge(birthDateInMs))
         }
     }
 
@@ -76,5 +89,14 @@ class MainActivity : AppCompatActivity() {
 
         // Display the greeting and age.
         Toast.makeText(this, greeting, Toast.LENGTH_LONG).show()
+    }
+
+    /**
+     * Shows a toast with an error message to the user when inputs are not valid.
+     * @param message The message to show the user.
+     */
+    private fun toastError(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
     }
 }
